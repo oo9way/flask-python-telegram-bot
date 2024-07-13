@@ -1,8 +1,14 @@
 import argparse
 import logging
+import os
 
+from django.apps import apps
+from django.conf import settings
 from flask import Flask, request
 from telegram import Update
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+apps.populate(settings.INSTALLED_APPS)
 
 from dispatcher import bot, dispatcher
 import sys
@@ -15,7 +21,6 @@ logger = logging.getLogger(__name__)
 
 @app.route('/webhook', methods=['POST'])
 def webhook() -> str:
-    print("Hellos")
     update = Update.de_json(request.get_json(force=True), bot)
     dispatcher.process_update(update)
     return 'ok'

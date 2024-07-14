@@ -46,3 +46,25 @@ def back_keyboard():
         [{"text": "Ortga"}, {"text": "رجع"}]
     ]
     return make_keyboard(keyboards, resize_keyboard=True)
+
+
+def confirm_or_edit_keyboard():
+    keyboards = [
+        [
+            {"text": "Tarjimani o'zgartirish / تحرير الترجمة"},
+            {"text": "Tarjimani tasdiqlash / تأكيد الترجمة"},
+        ]
+    ]
+
+    return make_keyboard(keyboards, resize_keyboard=True)
+
+
+def translation_languages_keyboard():
+    keyboards = [
+        [
+            {"text": "O'zbek"},
+            {"text": "Arabic"},
+            {"text": "Russian"},
+        ]
+    ]
+    return make_keyboard(keyboards, resize_keyboard=True)

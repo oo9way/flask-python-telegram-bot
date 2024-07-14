@@ -1,9 +1,10 @@
-from telegram import Update
+from telegram import Update, ReplyKeyboardRemove
 from telegram.ext import CallbackContext
 
 import states as st
 from keyboards import replies
 from data.models import Script
+from tasks.create_script import translate_task
 
 
 def error(update: Update, context: CallbackContext):
@@ -38,6 +39,7 @@ def get_language(update: Update, context: CallbackContext):
         text = "Siz o'zbek tilini tanladingiz.\nMatnni yuboring."
 
     elif language.startswith("Arabic"):
+        context.user_data["language"] = "ar"
         text = "لقد اخترت اللغة العربية.\nأرسل نص"
 
     else:
@@ -54,16 +56,18 @@ def get_language(update: Update, context: CallbackContext):
 def get_script(update: Update, context: CallbackContext):
     text = update.message.text
     if text.startswith("Ortga") or text.startswith("رجع"):
-        message = "Ortga qaytildi. Davom etish uchun tilni tanlang\n"
-        message += "لمواصلة العملية اختر اللغة"
+        message = "Bosh menyuga qaytildi.\n"
+        message += "القائمة الرئيسية"
         update.message.reply_text(message, reply_markup=replies.home_keyboard())
-        return st.LANGUAGE
+        return st.HOME
 
-    Script.objects.create(text=text, language=context.user_data["language"])
+    script = Script.objects.create(text=text, language=context.user_data["language"])
+    context.user_data["last_script_id"] = script.id
     message = "Matn saqlandi. Tarjima jarayoni boshlandi ...\n"
     message += "تم حفظ النص. بدأت عملية الترجمة..."
-    update.message.reply_text(message, reply_markup=replies.home_keyboard())
-    return st.HOME
+    update.message.reply_text(message, reply_markup=ReplyKeyboardRemove())
+    translate_task.delay(text, context.user_data["language"], update.message.chat_id, script.id)
+    return st.TRANSLATION_JOB
 
 
 def get_list(update: Update, context: CallbackContext):
@@ -90,3 +94,45 @@ def get_list(update: Update, context: CallbackContext):
     message = "Malumot topildi"
     update.message.reply_text(message, reply_markup=replies.home_keyboard())
     return st.HOME
+
+
+def get_translation(update: Update, context: CallbackContext):
+    text = update.message.text
+    if text.startswith("Tarjimani o'zgartirish / تحرير الترجمة"):
+        message = "Qaysi tildagi tarjimani o'zgartirmoqchisiz ?\n"
+        message += "ما هي الترجمة التي تريد تغييرها؟"
+        update.message.reply_text(message, reply_markup=replies.translation_languages_keyboard())
+        return st.EDIT_TRANSLATION_TEXT
+
+    if text.startswith("Tarjimani tasdiqlash / تأكيد الترجمة"):
+        script_id = context.user_data["last_script_id"]
+        script = Script.objects.get(id=script_id)
+        script.is_approved = True
+        script.save(update_fields=["is_approved"])
+        message = "Tarjimani tasdiqlandi.\n"
+        message += "تم تأكيد الترجمة"
+        del context.user_data["last_script_id"]
+        update.message.reply_text(message, reply_markup=replies.home_keyboard())
+        return st.HOME
+
+    message = "Noto'g'ri buyruq yuborildi. Iltimos, kerakli tugmani tanlang.\n"
+    message += "تم إرسال أمر غير صالح. الرجاء تحديد الزر المطلوب."
+
+    update.message.reply_text(message, reply_markup=replies.confirm_or_edit_keyboard())
+    return st.TRANSLATION_CONFIRM
+
+
+def get_translation_edit_language(update: Update, context: CallbackContext):
+    text = update.message.text
+    if text.startswith("O'zbek"):
+        pass
+    elif text.startswith("Arabic"):
+        pass
+    elif text.startswith("Russian"):
+        pass
+
+    message = "Noto'g'ri buyruq yuborildi. Iltimos, kerakli tugmani tanlang.\n"
+    message += "تم إرسال أمر غير صالح. الرجاء تحديد الزر المطلوب."
+
+    update.message.reply_text(message, reply_markup=replies.translation_languages_keyboard())
+    return st.EDIT_TRANSLATION_TEXT

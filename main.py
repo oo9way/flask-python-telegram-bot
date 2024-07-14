@@ -7,6 +7,8 @@ from django.conf import settings
 from flask import Flask, request
 from telegram import Update
 
+from tasks.configuration import make_celery
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 apps.populate(settings.INSTALLED_APPS)
 
@@ -14,6 +16,12 @@ from dispatcher import bot, dispatcher
 import sys
 
 app = Flask(__name__)
+app.config.update(
+    CELERY_BROKER_URL='redis://localhost:6379/0',
+    CELERY_RESULT_BACKEND='redis://localhost:6379/0'
+)
+
+celery = make_celery(app)
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)

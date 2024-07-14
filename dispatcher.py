@@ -18,6 +18,7 @@ dispatcher.add_handler(ConversationHandler(
         st.TRANSLATION_JOB: [MessageHandler(Filters.text, common.get_translation)],
         st.TRANSLATION_CONFIRM: [MessageHandler(Filters.text, common.get_translation)],
         st.EDIT_TRANSLATION_TEXT: [MessageHandler(Filters.text, common.get_translation_edit_language)],
+        st.SAVE_EDITED_TRANSLATION: [MessageHandler(Filters.text, common.save_edited_translation)]
         # st: [MessageHandler(Filters.photo, onboarding_handlers.accept_check)],
     },
     fallbacks=[common.error],

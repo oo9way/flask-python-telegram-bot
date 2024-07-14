@@ -124,15 +124,41 @@ def get_translation(update: Update, context: CallbackContext):
 
 def get_translation_edit_language(update: Update, context: CallbackContext):
     text = update.message.text
+    print(text)
     if text.startswith("O'zbek"):
-        pass
+        message = "O'zbek tilidagi tarjimani yuboring \nأرسل الترجمة الأوزبكية"
+        context.user_data["editing_language"] = "uz"
     elif text.startswith("Arabic"):
-        pass
+        message = "Arabic tilidagi tarjimani yuboring \nأرسل الترجمة العربية"
+        context.user_data["editing_language"] = "ar"
     elif text.startswith("Russian"):
-        pass
+        message = "Rus tilidagi tarjimani yuboring \nأرسل الترجمة الروسية"
+        context.user_data["editing_language"] = "ru"
+
+    if context.user_data["editing_language"] is not None:
+        update.message.reply_text(message, reply_markup=replies.back_keyboard())
+        return st.SAVE_EDITED_TRANSLATION
 
     message = "Noto'g'ri buyruq yuborildi. Iltimos, kerakli tugmani tanlang.\n"
     message += "تم إرسال أمر غير صالح. الرجاء تحديد الزر المطلوب."
 
     update.message.reply_text(message, reply_markup=replies.translation_languages_keyboard())
     return st.EDIT_TRANSLATION_TEXT
+
+
+def save_edited_translation(update: Update, context: CallbackContext):
+    text = update.message.text
+    script = Script.objects.get(id=context.user_data["last_script_id"])
+
+    if text.startswith("Ortga") or text.startswith("رجع"):
+        message = "**Translated scripts:**\n\n"
+        message += f"O'zbek: {script.text_uz}\n\n"
+        message += f"Arabic: {script.text_ar}\n\n"
+        message += f"Russian: {script.text_ru}\n\n"
+        update.message.reply_text(message, reply_markup=replies.confirm_or_edit_keyboard())
+        return st.TRANSLATION_JOB
+
+    else:
+        if context.user_data["editing_language"] == "uz":
+            pass
+

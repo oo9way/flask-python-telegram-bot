@@ -3,42 +3,58 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ title }}</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Al madina</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <ul>
-        <li>
-            {{item.text_uz}} 
-            <div class="audio-player">
-                <audio controls>
-                    <source src="item.audio_uz.path" type="audio/mpeg">
-                    <!-- Add additional source tags for other formats (e.g., OGG, WAV) -->
-                    Your browser does not support the audio element.
-                </audio>
-            </div>
-        </li>
-        <li>
-            {{item.text_ar}} 
-            <div class="audio-player">
-                <audio controls>
-                    <source src="item.audio_ar.path" type="audio/mpeg">
-                    <!-- Add additional source tags for other formats (e.g., OGG, WAV) -->
-                    Your browser does not support the audio element.
-                </audio>
-            </div>
-        </li>
-        <li>
-            {{item.text_ru}} 
-            <div class="audio-player">
-                <audio controls>
-                    <source src="item.audio_ru.path" type="audio/mpeg">
-                    <!-- Add additional source tags for other formats (e.g., OGG, WAV) -->
-                    Your browser does not support the audio element.
-                </audio>
-            </div>
-        </li>
-    </ul>
 
-   
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">O'zbek tilida</h5>
+                    <p class="card-text">{{item.text_uz}}</p>
+                    <audio controls>
+                        <source src="{{item.audio_uz.path}}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Arabic</h5>
+                    <p class="card-text">{{item.text_ar}}</p>
+                    <audio controls>
+                        <source src="{{item.audio_ar.path}}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Russian</h5>
+                    <p class="card-text">{{item.text_ru}}</p>
+                    <audio controls>
+                        <source src="{{item.audio_ru.path}}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 </body>
 </html>

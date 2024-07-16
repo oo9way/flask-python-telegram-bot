@@ -10,17 +10,19 @@
 <body>
 
 <div class="container mt-5">
-   {% if item %}
-     <div class="row">
+    {% if item %}
+    <div class="row">
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">O'zbek tilida</h5>
                     <p class="card-text">{{item.text_uz}}</p>
+                    {% if item.audio_uz %}
                     <audio controls>
                         <source src="{{item.audio_uz.path}}" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -30,10 +32,12 @@
                 <div class="card-body">
                     <h5 class="card-title">Arabic</h5>
                     <p class="card-text">{{item.text_ar}}</p>
+                    {% if item.audio_ar %}
                     <audio controls>
                         <source src="{{item.audio_ar.path}}" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -43,16 +47,18 @@
                 <div class="card-body">
                     <h5 class="card-title">Russian</h5>
                     <p class="card-text">{{item.text_ru}}</p>
+                    {% if item.audio_ru %}
                     <audio controls>
                         <source src="{{item.audio_ru.path}}" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
     {% else %}
-        <h1>No data</h1>
+    <h1>No data</h1>
     {% endif %}
 
 </div>

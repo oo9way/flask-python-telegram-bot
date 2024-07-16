@@ -9,7 +9,7 @@
     <ul>
         {% for item in items %}
         <li>
-            <a href="/{{ item.id }}">{{ item.created_at.strftime("%B %d, %Y") }}</a>
+            <a href="/details/{{ item.id }}">{{ item.created_at.strftime("%B %d, %Y") }}</a>
         </li>
         {% endfor %}
     </ul>

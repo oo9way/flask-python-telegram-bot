@@ -44,7 +44,7 @@ def index():
     return render_template("list.html", **context)
 
 
-@app.route('/<id>/', methods=['GET'])
+@app.route('/details/<id>/', methods=['GET'])
 def detail(id):
     context = {
         "item": Script.objects.get(pk=id)

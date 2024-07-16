@@ -100,7 +100,7 @@ def get_list(update: Update, context: CallbackContext):
 
     message = "Matnlar ro'yxati / قائمة النصوص\n"
     for script in scripts:
-        message += f'<a href="https://almadina.joseph.uz/{script.id}">{script.created_at.strftime("%-d %B, %Y")}</a>\n'
+        message += f'<a href="https://almadina.joseph.uz/details/{script.id}">{script.created_at.strftime("%-d %B, %Y")}</a>\n'
     update.message.reply_text(message, reply_markup=replies.home_keyboard(), parse_mode='html')
     return st.HOME
 

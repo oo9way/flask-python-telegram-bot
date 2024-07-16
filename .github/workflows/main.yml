@@ -19,3 +19,4 @@ jobs:
           git pull origin master
           pip install -r req.txt
           systemctl restart ${{ secrets.FLASK_SERVICE_NAME }}
+          systemctl restart ${{ secrets.CELERY_SERVICE_NAME }}

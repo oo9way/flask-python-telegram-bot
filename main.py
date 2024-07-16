@@ -29,11 +29,12 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-@app.route('/webhook', methods=['POST'])
+@app.route('/webhook/', methods=['POST'])
 def webhook() -> str:
     update = Update.de_json(request.get_json(force=True), bot)
     dispatcher.process_update(update)
     return 'ok'
+
 
 @app.route("/", methods=['GET'])
 def index():
@@ -41,6 +42,7 @@ def index():
         "items": Script.objects.filter(is_approved=True)
     }
     return render_template("list.html", **context)
+
 
 @app.route('/<id>/', methods=['GET'])
 def detail(id):

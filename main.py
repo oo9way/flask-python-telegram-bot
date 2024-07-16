@@ -4,7 +4,7 @@ import os
 
 from django.apps import apps
 from django.conf import settings
-from flask import Flask, request
+from flask import Flask, request, render_template
 from telegram import Update
 
 from tasks.configuration import make_celery
@@ -14,6 +14,8 @@ apps.populate(settings.INSTALLED_APPS)
 
 from dispatcher import bot, dispatcher
 import sys
+
+from data.models import Script
 
 app = Flask(__name__)
 app.config.update(
@@ -32,6 +34,20 @@ def webhook() -> str:
     update = Update.de_json(request.get_json(force=True), bot)
     dispatcher.process_update(update)
     return 'ok'
+
+@app.route("/", methods=['GET'])
+def index():
+    context = {
+        "items": Script.objects.filter(is_approved=True)
+    }
+    return render_template("list.html", **context)
+
+@app.route('/<id>/', methods=['GET'])
+def detail(id):
+    context = {
+        "item": Script.objects.get(pk=id)
+    }
+    return render_template("detail.html", **context)
 
 
 if __name__ == '__main__':

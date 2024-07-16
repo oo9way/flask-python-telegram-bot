@@ -46,7 +46,7 @@ def get_language(update: Update, context: CallbackContext):
         context.user_data["language"] = "ar"
         text = "Mavjud bo'lmagan til tanlandi. Iltimos berilgan tugmalar orqali tilni tanlang.\n"
         text += "تم تحديد لغة غير متاحة. الرجاء تحديد لغة باستخدام الأزرار المتوفرة."
-        update.message.reply_text(text, reply_markup=replies.home_keyboard())
+        update.message.reply_text(text, reply_markup=replies.language_keyboard())
         return st.LANGUAGE
 
     update.message.reply_text(text, reply_markup=replies.back_keyboard())
@@ -78,21 +78,30 @@ def get_list(update: Update, context: CallbackContext):
     elif language.startswith("Arabic"):
         language = "ar"
 
+    elif language.startswith("Russian"):
+        language = "ru"
+
     else:
         message = "Mavjud bo'lmagan til tanlandi. Iltimos berilgan tugmalar orqali tilni tanlang.\n"
         message += "تم اختيار لغة غير متاحة. الرجاء تحديد اللغة باستخدام الأزرار المتوفرة"
         update.message.reply_text(message, reply_markup=replies.language_keyboard())
         return st.LIST
-
-    scripts = Script.objects.filter(language=language)
+    
+    filter = {
+        f"text_{language}__isnull": False,
+        "is_approved": True
+    }
+    scripts = Script.objects.filter(**filter)
     if len(scripts) == 0:
         message = "Hech qanday matn mavjud emas.\n"
         message += "لم يتم العثور على نص"
         update.message.reply_text(message, reply_markup=replies.home_keyboard())
         return st.HOME
 
-    message = "Malumot topildi"
-    update.message.reply_text(message, reply_markup=replies.home_keyboard())
+    message = "Matnlar ro'yxati / قائمة النصوص\n"
+    for script in scripts:
+        message += f'<a href="https://joseph.uz/{script.id}">{script.created_at.strftime("%-d %B, %Y")}</a>\n'
+    update.message.reply_text(message, reply_markup=replies.home_keyboard(), parse_mode='html')
     return st.HOME
 
 
@@ -124,7 +133,8 @@ def get_translation(update: Update, context: CallbackContext):
 
 def get_translation_edit_language(update: Update, context: CallbackContext):
     text = update.message.text
-    print(text)
+    message = None
+
     if text.startswith("O'zbek"):
         message = "O'zbek tilidagi tarjimani yuboring \nأرسل الترجمة الأوزبكية"
         context.user_data["editing_language"] = "uz"
@@ -135,10 +145,10 @@ def get_translation_edit_language(update: Update, context: CallbackContext):
         message = "Rus tilidagi tarjimani yuboring \nأرسل الترجمة الروسية"
         context.user_data["editing_language"] = "ru"
 
-    if context.user_data["editing_language"] is not None:
+    if context.user_data.get("editing_language", None) is not None and message:
         update.message.reply_text(message, reply_markup=replies.back_keyboard())
         return st.SAVE_EDITED_TRANSLATION
-
+    
     message = "Noto'g'ri buyruq yuborildi. Iltimos, kerakli tugmani tanlang.\n"
     message += "تم إرسال أمر غير صالح. الرجاء تحديد الزر المطلوب."
 
@@ -160,5 +170,20 @@ def save_edited_translation(update: Update, context: CallbackContext):
 
     else:
         if context.user_data["editing_language"] == "uz":
-            pass
+            script.text_uz = text
+
+        if context.user_data["editing_language"] == "ar":
+            script.text_ar = text
+
+        if context.user_data["editing_language"] == "ru":
+            script.text_ru = text
+        
+        script.save()
+        
+        message = "**Translated scripts:**\n\n"
+        message += f"O'zbek: {script.text_uz}\n\n"
+        message += f"Arabic: {script.text_ar}\n\n"
+        message += f"Russian: {script.text_ru}\n\n"
+        update.message.reply_text(message, reply_markup=replies.confirm_or_edit_keyboard())
+        return st.TRANSLATION_JOB
 

@@ -1,0 +1,44 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+</head>
+<body>
+    <ul>
+        <li>
+            {{item.text_uz}} 
+            <div class="audio-player">
+                <audio controls>
+                    <source src="item.audio_uz.path" type="audio/mpeg">
+                    <!-- Add additional source tags for other formats (e.g., OGG, WAV) -->
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+        </li>
+        <li>
+            {{item.text_ar}} 
+            <div class="audio-player">
+                <audio controls>
+                    <source src="item.audio_ar.path" type="audio/mpeg">
+                    <!-- Add additional source tags for other formats (e.g., OGG, WAV) -->
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+        </li>
+        <li>
+            {{item.text_ru}} 
+            <div class="audio-player">
+                <audio controls>
+                    <source src="item.audio_ru.path" type="audio/mpeg">
+                    <!-- Add additional source tags for other formats (e.g., OGG, WAV) -->
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+        </li>
+    </ul>
+
+   
+</body>
+</html>

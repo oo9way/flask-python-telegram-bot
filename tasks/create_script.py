@@ -8,7 +8,12 @@ def translate_task(text: str, target_language: str, chat_id: int, script_id) -> 
     from dispatcher import bot
     script = Script.objects.get(id=script_id)
 
-    result = translate_text(text, target_language)
+    # result = translate_text(text, target_language)
+    result = {
+        "uz": "Test uz",
+        "ar": "Test ar",
+        "ru": "Test ru"
+    }
     texts = result
     texts[target_language] = text
     script.text_ar = texts['ar']

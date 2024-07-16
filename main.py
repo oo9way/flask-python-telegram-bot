@@ -46,8 +46,13 @@ def index():
 
 @app.route('/details/<id>/', methods=['GET'])
 def detail(id):
+    try:
+        script = Script.objects.get(pk=id)
+    except Script.DoesNotExist:
+        script = None
+
     context = {
-        "item": Script.objects.get(pk=id)
+        "item": script
     }
     return render_template("detail.html", **context)
 

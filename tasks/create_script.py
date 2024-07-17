@@ -3,6 +3,7 @@ from utils.translator import translate_text
 from data.models import Script
 from keyboards import replies
 
+
 @shared_task
 def translate_task(text: str, target_language: str, chat_id: int, script_id) -> None:
     from dispatcher import bot

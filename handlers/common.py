@@ -5,6 +5,7 @@ import states as st
 from keyboards import replies
 from data.models import Script
 from tasks.create_script import translate_task
+from tasks.convert_audio import convert_audio_task
 
 
 def error(update: Update, context: CallbackContext):
@@ -66,7 +67,10 @@ def get_script(update: Update, context: CallbackContext):
     message = "Matn saqlandi. Tarjima jarayoni boshlandi ...\n"
     message += "تم حفظ النص. بدأت عملية الترجمة..."
     update.message.reply_text(message, reply_markup=ReplyKeyboardRemove())
-    translate_task.delay(text, context.user_data["language"], update.message.chat_id, script.id)
+    translate_task.apply_async(
+        args=[text, context.user_data["language"], update.message.chat_id, script.id],
+        countdown=2
+    )
     return st.TRANSLATION_JOB
 
 
@@ -120,6 +124,8 @@ def get_translation(update: Update, context: CallbackContext):
         script.save(update_fields=["is_approved"])
         message = "Tarjimani tasdiqlandi.\n"
         message += "تم تأكيد الترجمة"
+
+        convert_audio_task.apply_async(args=[script_id], countdown=2)
         del context.user_data["last_script_id"]
         update.message.reply_text(message, reply_markup=replies.home_keyboard())
         return st.HOME

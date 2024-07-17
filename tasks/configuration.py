@@ -8,4 +8,5 @@ def make_celery(app):
         broker=app.config['CELERY_BROKER_URL']
     )
     celery.conf.update(app.config)
+    celery.autodiscover_tasks(['tasks'])
     return celery

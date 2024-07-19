@@ -1,12 +1,23 @@
 import openai
 import contants
 import json
+import requests
 
 
 def translate_text(text, target_language):
     languages = contants.LANGUAGES
     langs = ", ".join(x[1] for x in languages.items() if x[0] != target_language)
     lang_keys = ", ".join(x[0] for x in languages.items() if x[0] != target_language)
+
+    if target_language == "uz":
+        url = f'https://mal1kov.uz/lotin-kirill-api/latin'
+        headers = {'Content-Type': 'application/json'}
+        data = {'text': text}
+
+        response = requests.post(url, json=data, headers=headers)
+
+        if response.status_code == 200:
+            text = response.json()['result']
 
     openai.api_key = contants.OPENAI_API_KEY
     prompt = f"""Translate the following text to {langs} and return text as only just json format. I do not need something else.

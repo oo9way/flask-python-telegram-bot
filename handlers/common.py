@@ -26,6 +26,23 @@ def home(update: Update, context: CallbackContext):
         update.message.reply_text(message, reply_markup=replies.language_keyboard())
         return st.LIST
 
+    if text == "Matnni o'chirish":
+        pass
+
+    if text == "Matnni o'zgartirish / تغيير البرنامج النصي":
+        scripts = Script.objects.filter(is_approved=True)
+        if len(scripts) == 0:
+            message = "Hech qanday matn mavjud emas.\n"
+            message += "لم يتم العثور على نص"
+            update.message.reply_text(message, reply_markup=replies.home_keyboard())
+            return st.HOME
+
+        message = "Matnlar ro'yxati / قائمة النصوص\n"
+        for script in scripts:
+            message += f'<a href="https://almadina.joseph.uz/details/{script.id}">{script.id}. {script.created_at.strftime("%-d %B, %Y")}</a>\n'
+        update.message.reply_text(message, reply_markup=replies.enum_keyboard(len(scripts)), parse_mode='html')
+        return st.EDIT_SCRIPT_LIST
+
     message = "Noto'g'ri buyruq yuborildi. Iltimos, kerakli tugmani tanlang.\n"
     message += "أمر غير صالح. الرجاء اختيار أحد الأزرار"
 
@@ -90,7 +107,7 @@ def get_list(update: Update, context: CallbackContext):
         message += "تم اختيار لغة غير متاحة. الرجاء تحديد اللغة باستخدام الأزرار المتوفرة"
         update.message.reply_text(message, reply_markup=replies.language_keyboard())
         return st.LIST
-    
+
     filter = {
         f"text_{language}__isnull": False,
         "is_approved": True
@@ -154,7 +171,7 @@ def get_translation_edit_language(update: Update, context: CallbackContext):
     if context.user_data.get("editing_language", None) is not None and message:
         update.message.reply_text(message, reply_markup=replies.back_keyboard())
         return st.SAVE_EDITED_TRANSLATION
-    
+
     message = "Noto'g'ri buyruq yuborildi. Iltimos, kerakli tugmani tanlang.\n"
     message += "تم إرسال أمر غير صالح. الرجاء تحديد الزر المطلوب."
 
@@ -183,9 +200,9 @@ def save_edited_translation(update: Update, context: CallbackContext):
 
         if context.user_data["editing_language"] == "ru":
             script.text_ru = text
-        
+
         script.save()
-        
+
         message = "**Translated scripts:**\n\n"
         message += f"O'zbek: {script.text_uz}\n\n"
         message += f"Arabic: {script.text_ar}\n\n"
@@ -193,3 +210,53 @@ def save_edited_translation(update: Update, context: CallbackContext):
         update.message.reply_text(message, reply_markup=replies.confirm_or_edit_keyboard())
         return st.TRANSLATION_JOB
 
+
+def get_edit_script_list(update: Update, context: CallbackContext):
+    text = update.message.text
+    if text.startswith("Ortga") or text.startswith("رجع"):
+        message = "Bosh menyuga qaytildi.\n"
+        message += "القائمة الرئيسية"
+        update.message.reply_text(message, reply_markup=replies.home_keyboard())
+        return st.HOME
+
+    try:
+        script_id = int(text)
+    except ValueError:
+        scripts = Script.objects.filter(is_approved=True)
+        if len(scripts) == 0:
+            message = "Hech qanday matn mavjud emas.\n"
+            message += "لم يتم العثور على نص"
+            update.message.reply_text(message, reply_markup=replies.home_keyboard())
+            return st.HOME
+
+        message = "Noto'g'ri buyruq yuborildi. Iltimos, kerakli tugmani tanlang.\n"
+        message += "تم إرسال أمر غير صالح. الرجاء تحديد الزر المطلوب."
+        update.message.reply_text(message)
+        message = "Matnlar ro'yxati / قائمة النصوص\n"
+        for script in scripts:
+            message += f'<a href="https://almadina.joseph.uz/details/{script.id}">{script.id}. {script.created_at.strftime("%-d %B, %Y")}</a>\n'
+        update.message.reply_text(message, reply_markup=replies.enum_keyboard(len(scripts)), parse_mode='html')
+        return st.EDIT_SCRIPT_LIST
+
+    try:
+        script = Script.objects.get(id=script_id)
+        context.user_data["last_script_id"] = script.id
+    except Script.DoesNotExist:
+        message = "Ushbu raqamda matn topilmadi.\n\n"
+        message += "Matnlar ro'yxati / قائمة النصوص\n"
+        scripts = Script.objects.filter(is_approved=True)
+
+        for script in scripts:
+            message += f'<a href="https://almadina.joseph.uz/details/{script.id}">{script.id}. {script.created_at.strftime("%-d %B, %Y")}</a>\n'
+        update.message.reply_text(message, reply_markup=replies.enum_keyboard(len(scripts)), parse_mode='html')
+        return st.EDIT_SCRIPT_LIST
+
+    message = "**Translated scripts:**\n\n"
+    message += f"O'zbek: {script.text_uz}\n\n"
+    message += f"Arabic: {script.text_ar}\n\n"
+    message += f"Russian: {script.text_ru}\n\n"
+    update.message.reply_text(message)
+    message = "Qaysi tildagi tarjimani o'zgartirmoqchisiz ?\n"
+    message += "ما هي الترجمة التي تريد تغييرها؟"
+    update.message.reply_text(message, reply_markup=replies.translation_languages_keyboard())
+    return st.EDIT_TRANSLATION_TEXT

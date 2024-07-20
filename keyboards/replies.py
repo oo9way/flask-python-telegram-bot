@@ -25,6 +25,7 @@ def home_keyboard():
         [
             {"text": "Matn qo'shish / أضف نصًا"},
             {"text": "Qo'shilgan matnlar / النصوص المضافة"},
+            {"text": "Matnni o'zgartirish / تغيير البرنامج النصي"}
 
         ]
     ]
@@ -67,4 +68,15 @@ def translation_languages_keyboard():
             {"text": "Russian"},
         ]
     ]
+    return make_keyboard(keyboards, resize_keyboard=True)
+
+
+def enum_keyboard(n):
+    keyboards = [[{"text": "Ortga"}, {"text": "رجع"}], []]
+
+    for i in range(n):
+        keyboards[1].append(
+            {"text": str(i + 1)}
+        )
+
     return make_keyboard(keyboards, resize_keyboard=True)

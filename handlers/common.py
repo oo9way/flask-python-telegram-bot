@@ -26,8 +26,20 @@ def home(update: Update, context: CallbackContext):
         update.message.reply_text(message, reply_markup=replies.language_keyboard())
         return st.LIST
 
-    if text == "Matnni o'chirish":
-        pass
+    if text == "Matnni o'chirish / حذف البرنامج النصي":
+        scripts = Script.objects.filter(is_approved=True)
+        if len(scripts) == 0:
+            message = "Hech qanday matn mavjud emas.\n"
+            message += "لم يتم العثور على نص"
+            update.message.reply_text(message, reply_markup=replies.home_keyboard())
+            return st.HOME
+
+        message = "O'chirish uchun tanlang \n\nMatnlar ro'yxati / قائمة النصوص\n"
+        for script in scripts:
+            message += f'<a href="https://almadina.joseph.uz/details/{script.id}">{script.id}. {script.created_at.strftime("%-d %B, %Y")}</a>\n'
+        update.message.reply_text(message, reply_markup=replies.scripts_keyboard(scripts.values_list("id", flat=True)),
+                                  parse_mode='html')
+        return st.DELETE_SCRIPT
 
     if text == "Matnni o'zgartirish / تغيير البرنامج النصي":
         scripts = Script.objects.filter(is_approved=True)
@@ -40,7 +52,7 @@ def home(update: Update, context: CallbackContext):
         message = "Matnlar ro'yxati / قائمة النصوص\n"
         for script in scripts:
             message += f'<a href="https://almadina.joseph.uz/details/{script.id}">{script.id}. {script.created_at.strftime("%-d %B, %Y")}</a>\n'
-        update.message.reply_text(message, reply_markup=replies.enum_keyboard(len(scripts)), parse_mode='html')
+        update.message.reply_text(message, reply_markup=replies.scripts_keyboard(scripts.values_list("id", flat=True)), parse_mode='html')
         return st.EDIT_SCRIPT_LIST
 
     message = "Noto'g'ri buyruq yuborildi. Iltimos, kerakli tugmani tanlang.\n"
@@ -235,7 +247,7 @@ def get_edit_script_list(update: Update, context: CallbackContext):
         message = "Matnlar ro'yxati / قائمة النصوص\n"
         for script in scripts:
             message += f'<a href="https://almadina.joseph.uz/details/{script.id}">{script.id}. {script.created_at.strftime("%-d %B, %Y")}</a>\n'
-        update.message.reply_text(message, reply_markup=replies.enum_keyboard(len(scripts)), parse_mode='html')
+        update.message.reply_text(message, reply_markup=replies.scripts_keyboard(scripts.values_list("id", flat=True)), parse_mode='html')
         return st.EDIT_SCRIPT_LIST
 
     try:
@@ -248,7 +260,7 @@ def get_edit_script_list(update: Update, context: CallbackContext):
 
         for script in scripts:
             message += f'<a href="https://almadina.joseph.uz/details/{script.id}">{script.id}. {script.created_at.strftime("%-d %B, %Y")}</a>\n'
-        update.message.reply_text(message, reply_markup=replies.enum_keyboard(len(scripts)), parse_mode='html')
+        update.message.reply_text(message, reply_markup=replies.scripts_keyboard(scripts.values_list("id", flat=True)), parse_mode='html')
         return st.EDIT_SCRIPT_LIST
 
     message = "**Translated scripts:**\n\n"
@@ -260,3 +272,46 @@ def get_edit_script_list(update: Update, context: CallbackContext):
     message += "ما هي الترجمة التي تريد تغييرها؟"
     update.message.reply_text(message, reply_markup=replies.translation_languages_keyboard())
     return st.EDIT_TRANSLATION_TEXT
+
+
+def delete_script(update: Update, context: CallbackContext):
+    text = update.message.text
+    if text.startswith("Ortga") or text.startswith("رجع"):
+        message = "Bosh menyuga qaytildi.\n"
+        message += "القائمة الرئيسية"
+        update.message.reply_text(message, reply_markup=replies.home_keyboard())
+        return st.HOME
+
+    try:
+        script_id = int(text)
+    except ValueError:
+        scripts = Script.objects.filter(is_approved=True)
+        message = "Noto'g'ri buyruq yuborildi. Iltimos, kerakli tugmani tanlang.\n"
+        message += "تم إرسال أمر غير صالح. الرجاء تحديد الزر المطلوب."
+        update.message.reply_text(message, reply_markup=replies.scripts_keyboard(scripts.values_list("id", flat=True)),
+                                  parse_mode='html')
+        return st.DELETE_SCRIPT
+
+    try:
+        script = Script.objects.get(id=script_id)
+    except Script.DoesNotExist:
+        message = "Ushbu raqamda matn topilmadi.\n\n"
+        message += "Matnlar ro'yxati / قائمة النصوص\n"
+        scripts = Script.objects.filter(is_approved=True)
+
+        for script in scripts:
+            message += f'<a href="https://almadina.joseph.uz/details/{script.id}">{script.id}. {script.created_at.strftime("%-d %B, %Y")}</a>\n'
+        update.message.reply_text(message, reply_markup=replies.scripts_keyboard(scripts.values_list("id", flat=True)),
+                                  parse_mode='html')
+        return st.DELETE_SCRIPT
+
+    script.delete()
+    message = "Matn o'chirildi.\n\n"
+    message += "Matnlar ro'yxati / قائمة النصوص\n"
+    scripts = Script.objects.filter(is_approved=True)
+
+    for script in scripts:
+        message += f'<a href="https://almadina.joseph.uz/details/{script.id}">{script.id}. {script.created_at.strftime("%-d %B, %Y")}</a>\n'
+    update.message.reply_text(message, reply_markup=replies.scripts_keyboard(scripts.values_list("id", flat=True)),
+                              parse_mode='html')
+    return st.DELETE_SCRIPT

@@ -20,6 +20,7 @@ dispatcher.add_handler(ConversationHandler(
         st.EDIT_TRANSLATION_TEXT: [MessageHandler(Filters.text, common.get_translation_edit_language)],
         st.SAVE_EDITED_TRANSLATION: [MessageHandler(Filters.text, common.save_edited_translation)],
         st.EDIT_SCRIPT_LIST: [MessageHandler(Filters.text, common.get_edit_script_list)],
+        st.DELETE_SCRIPT: [MessageHandler(Filters.text, common.delete_script)],
     },
     fallbacks=[common.error],
 ))

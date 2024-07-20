@@ -24,9 +24,11 @@ def home_keyboard():
     keyboards = [
         [
             {"text": "Matn qo'shish / أضف نصًا"},
-            {"text": "Qo'shilgan matnlar / النصوص المضافة"},
-            {"text": "Matnni o'zgartirish / تغيير البرنامج النصي"}
-
+            {"text": "Qo'shilgan matnlar / النصوص المضافة"}
+        ],
+        [
+            {"text": "Matnni o'zgartirish / تغيير البرنامج النصي"},
+            {"text": "Matnni o'chirish / حذف البرنامج النصي"}
         ]
     ]
     return make_keyboard(keyboards, resize_keyboard=True)
@@ -79,4 +81,15 @@ def enum_keyboard(n):
             {"text": str(i + 1)}
         )
 
+    return make_keyboard(keyboards, resize_keyboard=True)
+
+
+def chunk_array(arr, chunk_size):
+    return [arr[i:i + chunk_size] for i in range(0, len(arr), chunk_size)]
+
+
+def scripts_keyboard(ids: []):
+    array = [{"text": i} for i in ids]
+    keyboards = chunk_array(array, 5)
+    keyboards.append([{"text": "Ortga"}, {"text": "رجع"}])
     return make_keyboard(keyboards, resize_keyboard=True)

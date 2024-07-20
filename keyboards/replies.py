@@ -1,5 +1,4 @@
 from telegram import ReplyKeyboardMarkup, KeyboardButton
-from django.core.cache import cache
 
 
 def make_keyboard(keyboards, **kwargs):
